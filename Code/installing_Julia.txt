@@ -1,0 +1,102 @@
+Download:
+
+1 - Download the appropriate version from: https://julialang.org/downloads/
+
+Instructions for linux:
+
+1 - Uncompress the downloaded file to a folder of your preference
+    
+    tar xvzf <julia_compressed_file>.tar.gz -C <chosen directory>
+    
+    Ex: sudo mkdir /opt/julia/
+        sudo tar xvzf Desktop/julia-0.6.2-linux-x86_64.tar.gz -C /opt/julia/
+        sudo mv julia-d386e40c17 julia0.6.2
+        
+2 - Create a symbolic link to julia inside a folder which is on your system PATH
+    
+    sudo ln -s <where you extracted the julia archive>/bin/julia /usr/local/bin/julia
+    
+    Ex: sudo ln -s /opt/julia/julia0.6.2/bin/julia /usr/local/bin/julia
+    
+3 - Add Julia’s bin folder to your system PATH environment variable
+
+    export PATH=$PATH:/opt/julia/julia0.6.2/bin/julia
+    
+4 - Invoke the julia executable by using its full path, as in 
+
+    <where you extracted Julia>/bin/julia
+    
+    
+General instructions for using JuMP with CPLEX:
+
+1 - Open julia's console and install JuMP with
+
+    julia> Pkg.add("JuMP")
+
+2 - In ~/.julia/v[version number]/CPLEX/deps, you can create a file called deps.jl with
+    the path to the binaries of your CPLEX installation:
+
+    const libcplex = <path to libcplex[version].so>
+
+    Ex (linux): const libcplex = "/opt/ibm/ILOG/CPLEX_Studio126/cplex/bin/x86-64_linux/libcplex126.so"
+
+3 - In julia's console, install CPLEX with
+
+    julia> Pkg.add("CPLEX")
+    
+    Note that you must have a working version of CPLEX installed on your computer
+    
+4 - Test installation with 
+
+    using CPLEX
+    
+5 - Run the following example model (Cplex it usually throws an error for not defining binary vars)
+    
+    using JuMP
+    using CPLEX
+    
+    m = Model(solver = CplexSolver())
+    @variable(m, 0 <= x <= 2 )
+    @variable(m, 0 <= y <= 30 )
+    
+    @objective(m, Max, 5x + 3*y )
+    @constraint(m, 1x + 5y <= 3.0 )
+    
+    print(m)
+    
+    status = solve(m)
+    
+    println("Objective value: ", getobjectivevalue(m))
+    println("x = ", getvalue(x))
+    println("y = ", getvalue(y))
+    
+    Output:
+    
+    Max 5 x + 3 y
+    Subject to
+     x + 5 y ≤ 3
+     0 ≤ x ≤ 2
+     0 ≤ y ≤ 30
+    Tried aggregator 1 time.
+    LP Presolve eliminated 1 rows and 2 columns.
+    All rows and columns eliminated.
+    Presolve time = 0.02 sec. (0.00 ticks)
+    CPLEX Error  3003: Not a mixed-integer problem.
+    Objective value: 10.600000000000001
+    x = 2.0
+    y = 0.2
+    
+6 - (for linux) Install vim support for julia
+
+    Copy (or symlink) the contents of this repository into the vim application support directory:
+
+    git clone git://github.com/JuliaEditorSupport/julia-vim.git
+    cd julia-vim
+    mkdir -p ~/.vim
+    cp -R * ~/.vim
+    
+    Note: https://groups.google.com/forum/#!topic/julia-users/4ucTu4yyo70
+        
+
+
+
